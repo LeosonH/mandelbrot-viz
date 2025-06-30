@@ -45,4 +45,4 @@ https://www.youtube.com/watch?v=NGMRB4O922I
 http://mathworld.wolfram.com/MandelbrotSet.html
 
 **Notes of thanks to:**
-- [Dr. Lonce Wyse](https://www.researchgate.net/profile/Lonce_Wyse3), my first mentor in all things Javascript and Canvas
+- [Dr. Lonce Wyse](https://www.researchgate.net/profile/Lonce_Wyse3), my first instructor in all things JS and Canvas.
