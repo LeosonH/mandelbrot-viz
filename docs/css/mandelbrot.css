@@ -12,6 +12,23 @@ canvas {
   display: block;
 }
 
+kbd {
+  display: inline-block;
+  padding: 0.2em 0.5em;
+  font-family: ui-monospace, monospace;
+  font-size: 0.95em;
+  font-weight: 600;
+  background-color: #444;    
+  color: #eee;               
+  border: 1px solid #222;    
+  border-radius: 4px;
+  box-shadow: 
+    0 3px 0 #222,            
+    0 0 0 1px #555 inset;     
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
 /* ── shared HUD card ── */
 .hud {
   position: fixed;
@@ -129,6 +146,40 @@ canvas {
   font-size: 12px;
   color: rgba(180, 190, 255, 0.6);
   font-style: italic;
+}
+
+.shortcuts-tooltip {
+  top: calc(0% - 145px);
+  display: none;
+  height: auto;
+  width: 200px;
+}
+
+.shortcuts-table{
+  font-size: 12px;
+  color: rgba(200, 210, 255, 0.75);
+}
+
+/* ── Julia companion (right side, vertically centred) ── */
+.hud-julia {
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  padding: 10px;
+  pointer-events: none;
+}
+
+.julia-label {
+  font-size: 11px;
+  color: rgba(200, 210, 255, 0.55);
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
+}
+
+#juliaCanvas {
+  display: block;
+  border-radius: 6px;
 }
 
 /* ── palette swatches ── */

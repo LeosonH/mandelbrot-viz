@@ -38,10 +38,28 @@
     <span id="coordValue">hover to inspect</span>
   </div>
 
-  <!-- Bottom-left: source link + rendering indicator -->
+  <!-- Right: Julia set companion -->
+  <div class="hud hud-julia">
+    <div class="julia-label">Julia set at cursor</div>
+    <canvas id="juliaCanvas" width="180" height="180"></canvas>
+  </div>
+
+  <!-- Bottom-left: source link + rendering indicator + shortcuts -->
   <div class="hud hud-bottom">
     <a href="https://www.github.com/LeosonH/mandelbrot-viz" target="_blank" class="source-link">source code</a>
     <span class="rendering-dot" id="renderingStatus" style="display:none">rendering…</span>
+    <div class="info-wrap shortcuts-wrap">
+      <button class="info-btn">⌨</button>
+      <div class="info-tooltip shortcuts-tooltip">
+        <table class="shortcuts-table">
+          <tr><td><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></td><td>Pan</td></tr>
+          <tr><td><kbd>+</kbd> / <kbd>−</kbd></td><td>Zoom in / out</td></tr>
+          <tr><td><kbd>R</kbd></td><td>Reset view</td></tr>
+          <tr><td>Scroll / Pinch</td><td>Zoom</td></tr>
+          <tr><td>Drag</td><td>Pan</td></tr>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- Bottom-right: iteration depth control -->

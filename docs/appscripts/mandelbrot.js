@@ -289,7 +289,73 @@ free:
   host.Visualization = Visualization;
 })(this);
 
-// Global variables for event handling
+// ── Julia set companion ───────────────────────────────────────────────────
+var juliaCanvas = null, juliaCtx = null, juliaImageData = null;
+var juliaPending = false, pendingJuliaC = null;
+var JULIA_LOG2 = Math.log(2);
+
+function initJulia() {
+  juliaCanvas = document.getElementById('juliaCanvas');
+  if (!juliaCanvas) return;
+  juliaCtx = juliaCanvas.getContext('2d');
+  juliaImageData = juliaCtx.createImageData(juliaCanvas.width, juliaCanvas.height);
+  renderJulia(-0.7, 0.27); // default view on load
+}
+
+function hslToRgbJ(h, s, l) {
+  var q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  function c(t) {
+    if (t < 0) t += 1; if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  }
+  return { r: Math.round(c(h+1/3)*255), g: Math.round(c(h)*255), b: Math.round(c(h-1/3)*255) };
+}
+
+function renderJulia(cRe, cIm) {
+  if (!juliaCtx || !juliaImageData) return;
+  var w = juliaCanvas.width, h = juliaCanvas.height;
+  var scale = 3.5, maxIter = Math.min(ITER_FULL, 96);
+  var pal = PALETTES[currentPaletteIndex];
+  var data = juliaImageData.data;
+  for (var row = 0; row < h; row++) {
+    var zy0 = (scale * row / h) - scale / 2;
+    for (var col = 0; col < w; col++) {
+      var zx = (scale * col / w) - scale / 2, zy = zy0, i = 0;
+      while (i < maxIter && zx*zx + zy*zy < 256) {
+        var znx = zx*zx - zy*zy + cRe; zy = 2*zx*zy + cIm; zx = znx; i++;
+      }
+      var idx = (row * w + col) * 4;
+      if (i === maxIter) {
+        data[idx] = data[idx+1] = data[idx+2] = 0;
+      } else {
+        var m = Math.sqrt(zx*zx + zy*zy);
+        var smooth = i - Math.log(Math.log(m) / JULIA_LOG2) / JULIA_LOG2;
+        var hue = ((smooth * pal.hueSpeed + pal.hueOffset) % 1 + 1) % 1;
+        var ll = 0.08 + 0.45 * (1 - Math.exp(-smooth * 0.15));
+        var rgb = hslToRgbJ(hue, pal.saturation, ll);
+        data[idx] = rgb.r; data[idx+1] = rgb.g; data[idx+2] = rgb.b;
+      }
+      data[idx+3] = 255;
+    }
+  }
+  juliaCtx.putImageData(juliaImageData, 0, 0);
+}
+
+function scheduleJulia(cRe, cIm) {
+  pendingJuliaC = { re: cRe, im: cIm };
+  if (!juliaPending) {
+    juliaPending = true;
+    requestAnimationFrame(function() {
+      juliaPending = false;
+      if (pendingJuliaC) { renderJulia(pendingJuliaC.re, pendingJuliaC.im); pendingJuliaC = null; }
+    });
+  }
+}
+
+// ── Global variables for event handling ──────────────────────────────────
 var currentDisplay, currentVisualization;
 var eventListenersSetup = false;
 var centerX = 0, centerY = 0; // Center point of the visualization
@@ -391,6 +457,7 @@ function setupEventListeners() {
         var im = (-complexY).toFixed(4);
         var coordEl = document.getElementById('coordValue');
         if (coordEl) coordEl.textContent = 'C = ' + re + (im >= 0 ? ' + ' : ' \u2212 ') + Math.abs(im) + 'i';
+        scheduleJulia(complexX, -complexY);
       }
     }
   });
@@ -456,14 +523,13 @@ function setupEventListeners() {
     // Store old scale for calculating offset
     var oldScale = window.SCALE_N;
     
-    // Adjust zoom based on scroll direction
     if (ev.deltaY < 0) {
-      // Zoom in
       window.SCALE_N *= 0.9;
     } else {
-      // Zoom out
       window.SCALE_N *= 1.1;
     }
+    // Clamp: don't zoom in past float precision limit, don't zoom out past full view
+    window.SCALE_N = Math.max(1e-10, Math.min(20, window.SCALE_N));
     
     // Calculate new mouse position with new scale (if we didn't adjust center)
     var newMouseComplexX = (window.SCALE_N * ev.clientX / size) - (window.SCALE_N * width) / (2 * size) + centerX;
@@ -475,9 +541,27 @@ function setupEventListeners() {
     
     scheduleRender(true);
   }, { passive: false });
+
+  document.addEventListener('keydown', function(ev) {
+    if (ev.target.tagName === 'INPUT') return;
+    var pan = window.SCALE_N * 0.2;
+    switch (ev.key) {
+      case 'ArrowLeft':  ev.preventDefault(); centerX -= pan; scheduleRender(false); break;
+      case 'ArrowRight': ev.preventDefault(); centerX += pan; scheduleRender(false); break;
+      case 'ArrowUp':    ev.preventDefault(); centerY -= pan; scheduleRender(false); break;
+      case 'ArrowDown':  ev.preventDefault(); centerY += pan; scheduleRender(false); break;
+      case '+': case '=':
+        window.SCALE_N = Math.max(1e-10, window.SCALE_N * 0.8); scheduleRender(true); break;
+      case '-':
+        window.SCALE_N = Math.min(20, window.SCALE_N * 1.25); scheduleRender(true); break;
+      case 'r': case 'R':
+        centerX = 0; centerY = 0; window.SCALE_N = 4; scheduleRender(false); break;
+    }
+  });
 }
 
 loadFromHash();
+initJulia();
 
 // Sync HUD state with values restored from hash
 (function syncHUD() {
