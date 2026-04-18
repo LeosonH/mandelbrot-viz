@@ -1,4 +1,132 @@
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+canvas {
+  display: block;
+}
+
+/* ── shared HUD card ── */
+.hud {
+  position: fixed;
+  background: rgba(0, 0, 10, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(180, 180, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: rgba(220, 225, 255, 0.9);
+  font-size: 13px;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── title card (top-left) ── */
+.hud-title {
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.hud-label {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ── info button + tooltip ── */
+.info-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.info-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(180, 180, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(220, 225, 255, 0.75);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.info-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.info-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: rgba(0, 0, 20, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(180, 180, 255, 0.18);
+  border-radius: 8px;
+  padding: 10px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.info-tooltip img {
+  display: block;
+  height: 64px;
+  width: auto;
+}
+
+.info-btn:hover + .info-tooltip,
+.info-wrap:hover .info-tooltip {
+  display: block;
+}
+
+/* ── coordinate card (top-right) ── */
+.hud-coords {
+  top: 16px;
+  right: 16px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  color: rgba(200, 210, 255, 0.8);
+}
+
+/* ── bottom card (source + rendering) ── */
+.hud-bottom {
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.source-link {
+  color: rgba(180, 190, 255, 0.75);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.15s;
+}
+
+.source-link:hover {
+  color: rgba(220, 225, 255, 1);
+  text-decoration: underline;
+}
+
+.rendering-dot {
+  font-size: 12px;
+  color: rgba(180, 190, 255, 0.6);
+  font-style: italic;
 }

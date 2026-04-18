@@ -1,22 +1,42 @@
 <html>
 
-<meta name=“image” property="og:image" content="images/mandelbrot.png" />
+<meta name="image" property="og:image" content="images/mandelbrot.png" />
 
 <head>
-	<link rel="stylesheet" type="text/css" href="css/mandelbrot.css">
-    <script type="text/javascript" data-main="appscripts/mandelbrot.js" src="jslibs/require.js">
-    </script>
-    <meta name=“image” property="og:image" content="images/mandelbrot.png" />
+  <link rel="stylesheet" type="text/css" href="css/mandelbrot.css">
+  <script type="text/javascript" data-main="appscripts/mandelbrot.js" src="jslibs/require.js">
+  </script>
+  <meta name="image" property="og:image" content="images/mandelbrot.png" />
 </head>
 
 <header>
-<title>
-  The Mandelbrot Set
-</title>
+  <title>The Mandelbrot Set</title>
 </header>
 
 <body>
-    <canvas id= "myCanvas"></canvas>
+  <canvas id="myCanvas"></canvas>
+
+  <!-- Top-left: title + info tooltip -->
+  <div class="hud hud-title">
+    <span class="hud-label">The Mandelbrot Set</span>
+    <div class="info-wrap">
+      <button class="info-btn">?</button>
+      <div class="info-tooltip">
+        <img src="images/mandelbrot_latex.png" alt="Mandelbrot equation">
+      </div>
+    </div>
+  </div>
+
+  <!-- Top-right: coordinate display -->
+  <div class="hud hud-coords">
+    <span id="coordValue">hover to inspect</span>
+  </div>
+
+  <!-- Bottom-left: source link + rendering indicator -->
+  <div class="hud hud-bottom">
+    <a href="https://www.github.com/LeosonH/mandelbrot-viz" target="_blank" class="source-link">source code</a>
+    <span class="rendering-dot" id="renderingStatus" style="display:none">rendering…</span>
+  </div>
 </body>
 
 </html>
