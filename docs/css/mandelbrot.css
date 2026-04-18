@@ -85,7 +85,7 @@ canvas {
 
 .info-tooltip img {
   display: block;
-  height: 64px;
+  height: 120px;
   width: auto;
 }
 
@@ -129,4 +129,55 @@ canvas {
   font-size: 12px;
   color: rgba(180, 190, 255, 0.6);
   font-style: italic;
+}
+
+/* ── palette swatches ── */
+.palette-swatches {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-left: 4px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(180, 180, 255, 0.15);
+}
+
+.palette-btn {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.palette-btn:hover {
+  transform: scale(1.25);
+}
+
+.palette-btn.active {
+  border-color: rgba(255, 255, 255, 0.85);
+  transform: scale(1.15);
+}
+
+/* ── iteration control (bottom-right) ── */
+.hud-iter {
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+  pointer-events: auto;
+}
+
+.iter-label {
+  font-size: 12px;
+  color: rgba(200, 210, 255, 0.75);
+}
+
+#iterSlider {
+  width: 100%;
+  accent-color: rgba(160, 170, 255, 0.9);
+  cursor: pointer;
 }

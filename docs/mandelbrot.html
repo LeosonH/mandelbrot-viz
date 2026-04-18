@@ -16,7 +16,7 @@
 <body>
   <canvas id="myCanvas"></canvas>
 
-  <!-- Top-left: title + info tooltip -->
+  <!-- Top-left: title + info tooltip + palette swatches -->
   <div class="hud hud-title">
     <span class="hud-label">The Mandelbrot Set</span>
     <div class="info-wrap">
@@ -24,6 +24,12 @@
       <div class="info-tooltip">
         <img src="images/mandelbrot_latex.png" alt="Mandelbrot equation">
       </div>
+    </div>
+    <div class="palette-swatches">
+      <button class="palette-btn active" data-palette="0" title="Cosmic" style="background:hsl(223,90%,35%)"></button>
+      <button class="palette-btn" data-palette="1" title="Fire"   style="background:hsl(15,100%,45%)"></button>
+      <button class="palette-btn" data-palette="2" title="Ocean"  style="background:hsl(185,85%,35%)"></button>
+      <button class="palette-btn" data-palette="3" title="Mono"   style="background:hsl(0,0%,55%)"></button>
     </div>
   </div>
 
@@ -36,6 +42,12 @@
   <div class="hud hud-bottom">
     <a href="https://www.github.com/LeosonH/mandelbrot-viz" target="_blank" class="source-link">source code</a>
     <span class="rendering-dot" id="renderingStatus" style="display:none">rendering…</span>
+  </div>
+
+  <!-- Bottom-right: iteration depth control -->
+  <div class="hud hud-iter">
+    <label class="iter-label">Detail <span id="iterValue">256</span></label>
+    <input type="range" id="iterSlider" min="32" max="512" step="32" value="256">
   </div>
 </body>
 

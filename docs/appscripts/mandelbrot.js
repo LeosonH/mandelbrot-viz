@@ -193,23 +193,24 @@ free:
       }
       return { r: Math.round(hue2rgb(h+1/3)*255), g: Math.round(hue2rgb(h)*255), b: Math.round(hue2rgb(h-1/3)*255) };
     }
-    function smoothToRGB(s) {
-      var hue = ((s * 0.025 + 0.62) % 1 + 1) % 1;
+    function smoothToRGB(s, hueOffset, hueSpeed, sat) {
+      var hue = ((s * hueSpeed + hueOffset) % 1 + 1) % 1;
       var l = 0.08 + 0.45 * (1 - Math.exp(-s * 0.15));
-      return hslToRgb(hue, 0.9, l);
+      return hslToRgb(hue, sat, l);
     }
     self.onmessage = function(e) {
       var d = e.data;
       var w = d.width, h = d.height, startY = d.startY, endY = d.endY;
       var scaleN = d.scaleN, centerX = d.centerX, centerY = d.centerY, size = d.size;
       var maxIter = d.maxIterations;
+      var hueOffset = d.hueOffset, hueSpeed = d.hueSpeed, sat = d.saturation;
       var buf = new Uint8ClampedArray(w * (endY - startY) * 4);
       for (var y = startY; y < endY; y++) {
         var cy = (scaleN * y / size) - (scaleN * h) / (2 * size) + centerY;
         for (var x = 0; x < w; x++) {
           var cx = (scaleN * x / size) - (scaleN * w) / (2 * size) + centerX;
           var sm = escapeAlgorithm(cx, cy, maxIter);
-          var col = sm === null ? {r:0,g:0,b:0} : smoothToRGB(sm);
+          var col = sm === null ? {r:0,g:0,b:0} : smoothToRGB(sm, hueOffset, hueSpeed, sat);
           var i = ((y - startY) * w + x) * 4;
           buf[i] = col.r; buf[i+1] = col.g; buf[i+2] = col.b; buf[i+3] = 255;
         }
@@ -271,6 +272,7 @@ free:
         }
       };
 
+      var pal = PALETTES[currentPaletteIndex];
       worker.postMessage({
         width: width, height: height,
         startY: startY, endY: endY,
@@ -278,7 +280,8 @@ free:
         centerX: centerX, centerY: centerY,
         size: self.size,
         renderId: renderId,
-        maxIterations: maxIterations
+        maxIterations: maxIterations,
+        hueOffset: pal.hueOffset, hueSpeed: pal.hueSpeed, saturation: pal.saturation
       });
     });
   };
@@ -294,16 +297,50 @@ var isDragging = false;
 var dragStartX = 0, dragStartY = 0;
 var dragStartCenterX = 0, dragStartCenterY = 0;
 
+var PALETTES = [
+  { name: 'Cosmic', hueOffset: 0.62, hueSpeed: 0.025, saturation: 0.9  },
+  { name: 'Fire',   hueOffset: 0.02, hueSpeed: 0.020, saturation: 1.0  },
+  { name: 'Ocean',  hueOffset: 0.50, hueSpeed: 0.020, saturation: 0.85 },
+  { name: 'Mono',   hueOffset: 0.00, hueSpeed: 0.025, saturation: 0.0  },
+];
+var currentPaletteIndex = 0;
+
 var renderPending = false;
 var fullQualityTimer = null;
 var ITER_FAST = 64, ITER_FULL = 256;
+
+function updateHash() {
+  var params = 'x=' + centerX.toFixed(6) +
+               '&y=' + centerY.toFixed(6) +
+               '&s=' + window.SCALE_N.toFixed(6) +
+               '&p=' + currentPaletteIndex +
+               '&i=' + ITER_FULL;
+  history.replaceState(null, '', '#' + params);
+}
+
+function loadFromHash() {
+  var hash = location.hash.slice(1);
+  if (!hash) return;
+  var params = {};
+  hash.split('&').forEach(function(part) {
+    var kv = part.split('=');
+    if (kv.length === 2) params[kv[0]] = kv[1];
+  });
+  if (params.x) centerX = parseFloat(params.x);
+  if (params.y) centerY = parseFloat(params.y);
+  if (params.s) window.SCALE_N = parseFloat(params.s);
+  if (params.p) currentPaletteIndex = Math.min(parseInt(params.p), PALETTES.length - 1);
+  if (params.i) ITER_FULL = Math.max(32, Math.min(512, parseInt(params.i)));
+}
 
 // During active zoom: render at low iterations, throttled to one per frame.
 // When zooming stops (200ms idle): fire a full-quality re-render.
 function scheduleRender(fast) {
   if (fast) {
     clearTimeout(fullQualityTimer);
-    fullQualityTimer = setTimeout(function() { render(ITER_FULL); }, 200);
+    fullQualityTimer = setTimeout(function() { render(ITER_FULL); updateHash(); }, 200);
+  } else {
+    updateHash();
   }
   if (!renderPending) {
     renderPending = true;
@@ -440,4 +477,39 @@ function setupEventListeners() {
   }, { passive: false });
 }
 
+loadFromHash();
+
+// Sync HUD state with values restored from hash
+(function syncHUD() {
+  var btns = document.querySelectorAll('.palette-btn');
+  btns.forEach(function(b) { b.classList.remove('active'); });
+  if (btns[currentPaletteIndex]) btns[currentPaletteIndex].classList.add('active');
+  var slider = document.getElementById('iterSlider');
+  var label  = document.getElementById('iterValue');
+  if (slider) slider.value = ITER_FULL;
+  if (label)  label.textContent = ITER_FULL;
+})();
+
 render();
+
+// Palette swatches
+document.querySelectorAll('.palette-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    currentPaletteIndex = parseInt(btn.dataset.palette);
+    document.querySelectorAll('.palette-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    scheduleRender(false);
+  });
+});
+
+// Iteration slider
+var iterSlider = document.getElementById('iterSlider');
+var iterLabel  = document.getElementById('iterValue');
+if (iterSlider) {
+  iterSlider.value = ITER_FULL;
+  iterSlider.addEventListener('input', function() {
+    ITER_FULL = parseInt(iterSlider.value);
+    if (iterLabel) iterLabel.textContent = ITER_FULL;
+    scheduleRender(false);
+  });
+}
