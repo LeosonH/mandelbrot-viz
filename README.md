@@ -1,11 +1,9 @@
 # Mandelbrot Set Visualization
 Rendering the Mandelbrot Set in JavaScript
 ----
-JS source: [docs/appscripts/mandelbrot.js](https://github.com/LeosonH/mandelbrot-viz/tree/master/docs/appscripts/mandelbrot.js)
-
 **View the visualization [here](https://leosonh.github.io/mandelbrot-viz/mandelbrot.html)!** 
 
-NOT compatible with Firefox/Internet Explorer. 
+Browser compatibility: Google Chrome
 
 ----
 **The Mandelbrot Set** is the set of complex numbers  <a href="https://www.codecogs.com/eqnedit.php?latex=C&space;=&space;x&plus;yi" target="_blank"><img src="https://latex.codecogs.com/gif.latex?C&space;=&space;x&plus;yi" title="C = x+yi" /></a>  for which sequences as defined by the following recurrence relation are not divergent (do not tend to infinity):
@@ -45,4 +43,4 @@ https://www.youtube.com/watch?v=NGMRB4O922I
 http://mathworld.wolfram.com/MandelbrotSet.html
 
 **Notes of thanks to:**
-- [Dr. Lonce Wyse](https://www.researchgate.net/profile/Lonce_Wyse3), my first instructor in all things JS and Canvas.
+- [Dr. Lonce Wyse](https://www.researchgate.net/profile/Lonce_Wyse3), the first instructor who introduced me to JS and Canvas in 2016.
